@@ -1,0 +1,94 @@
+[
+  {
+    "realm": "myrealm",
+    "enabled": true,
+    "roles": {
+      "realm": [
+        { "name": "admin" },
+        { "name": "user" }
+      ]
+    },
+    "users": [
+      {
+        "username": "AdminUser",
+        "enabled": true,
+        "emailVerified": true,
+        "credentials": [
+          { "type": "password", "value": "admin123" }
+        ],
+        "realmRoles": ["admin"]
+      },
+      {
+        "username": "NormalUser",
+        "enabled": true,
+        "emailVerified": true,
+        "credentials": [
+          { "type": "password", "value": "user123" }
+        ],
+        "realmRoles": ["user"]
+      }
+    ],
+    "clients": [
+      {
+        "clientId": "myclient",
+        "publicClient": true,
+        "redirectUris": ["https://example.com/callback"],
+        "directAccessGrantsEnabled": true
+      }
+    ]
+  },
+  {
+    "realm": "star-realm",
+    "enabled": true,
+    "roles": {
+      "realm": [
+        { "name": "1" },
+        { "name": "2" },
+        { "name": "3" },
+        { "name": "4" },
+        { "name": "5" }
+      ]
+    },
+    "groups": [
+      {
+        "name": "A",
+        "realmRoles": ["1", "5"],
+        "attributes": {
+          "team": ["Alpha"]
+        }
+      },
+      {
+        "name": "B",
+        "attributes": {
+          "team": ["Beta"]
+        }
+      },
+      {
+        "name": "C",
+        "attributes": {
+          "team": ["Gamma"]
+        }
+      }
+    ],
+    "users": [
+      {
+        "username": "GroupAUser",
+        "enabled": true,
+        "emailVerified": true,
+        "credentials": [
+          { "type": "password", "value": "groupA123" }
+        ],
+        "groups": ["A"]
+      },
+      {
+        "username": "GroupBUser",
+        "enabled": true,
+        "emailVerified": true,
+        "credentials": [
+          { "type": "password", "value": "groupB123" }
+        ],
+        "groups": ["B"]
+      }
+    ]
+  }
+]
