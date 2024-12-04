@@ -38,7 +38,7 @@
     ]
   },
   {
-    "realm": "star-realm",
+    "realm": "example-realm",
     "enabled": true,
     "roles": {
       "realm": [
@@ -88,6 +88,14 @@
           { "type": "password", "value": "groupB123" }
         ],
         "groups": ["B"]
+      }
+    ],
+    "clients": [
+      {
+        "clientId": "myclient",
+        "publicClient": true,
+        "redirectUris": ["*"],
+        "directAccessGrantsEnabled": true
       }
     ]
   }
