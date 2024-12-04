@@ -93,7 +93,8 @@
     "clients": [
       {
         "clientId": "myclient",
-        "publicClient": true,
+        "publicClient": false,
+        "secret": "mysecret",
         "redirectUris": ["*"],
         "directAccessGrantsEnabled": true
       }
