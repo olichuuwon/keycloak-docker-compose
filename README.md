@@ -8,7 +8,7 @@ This guide provides details on running Keycloak with or without PostgreSQL, best
 
 1. [Day 1: Initial Compose Setup](#day-1-initial-compose-setup)
 2. [Day 2: Example API Request](#day-2-example-api-request)
-3. [Day 3: Authorization Code Flow with PKCE]()
+3. [Day 3: Authorization Code Flow with PKCE](#day-3-authorization-code-flow-with-pkce)
 
 ---
 
@@ -365,95 +365,15 @@ curl -X POST "http://localhost:8080/realms/example-realm/protocol/openid-connect
 curl http://localhost:8080/realms/example-realm/protocol/openid-connect/certs
 ```
 
-### Conclusion
+### Why `client_secret` is needed here
 
-### Why `client_secret` is needed here:
 - The `client_secret` is used by Keycloak to authenticate the **client application** (e.g., `myclient`) to ensure that the request is coming from a legitimate client. This is part of **client authentication** and is necessary even though the request also involves user credentials (username and password).
 - The `client_id` and `client_secret` authenticate the client to the authorization server, while the username and password are used to authenticate the **user**.
 - Keycloak will issue an access token after successfully verifying the **client credentials** and **user credentials**.
 
-### Should the `client_secret` be there?
-- Yes, for the **Password Grant Flow**, **`client_secret`** should still be included as part of the request. The **client authentication** with the `client_secret` ensures that only authorized clients can request an access token.
-
 However, keep in mind that using the **Password Grant Flow** is not recommended for **public clients** (e.g., mobile apps, client-side JavaScript) because it exposes the `client_secret` in the request. This flow is typically used for **confidential clients**, such as server-side applications that can securely store the `client_secret`.
 
-### Conclusion:
-For the **Password Grant Flow**, you **should** include the `client_secret` in your `curl` request for client authentication. The `client_secret` is crucial for Keycloak to verify that the request is coming from an authorized client application.
-
-### **Flows that involve JWT and JWKS:**
-
-#### **1. Authorization Code Flow (for User Authentication)**
-
-This flow is typically used when you want a user to authenticate using an external identity provider (like Keycloak) and then use the issued JWT token to access protected resources.
-
-##### Steps in the Authorization Code Flow:
-
-1. **Redirect User to Keycloak for Authentication**: 
-   - Your client (e.g., a web app) will redirect the user to Keycloak's `/protocol/openid-connect/auth` endpoint with the `client_id` and `redirect_uri`.
-   - Example URL:
-     ```plaintext
-     https://localhost:8080/realms/example-realm/protocol/openid-connect/auth?response_type=code&client_id=myclient&redirect_uri=http://localhost:3000/callback
-     ```
-
-2. **User Authenticates and Grants Consent**: 
-   - The user logs in to Keycloak, and if successful, is redirected back to the provided `redirect_uri` with an authorization code.
-
-3. **Exchange the Authorization Code for a Token**: 
-   - The client exchanges the authorization code for an access token (JWT) and optionally a refresh token by making a POST request to the `/protocol/openid-connect/token` endpoint:
-     ```bash
-     curl -X POST "http://localhost:8080/realms/example-realm/protocol/openid-connect/token" \
-     -H "Content-Type: application/x-www-form-urlencoded" \
-     -d "grant_type=authorization_code" \
-     -d "code=authorization_code_here" \
-     -d "redirect_uri=http://localhost:3000/callback" \
-     -d "client_id=myclient" \
-     -d "client_secret=mysecret"
-     ```
-
-4. **JWT Token Issued**:
-   - If the request is successful, Keycloak will issue an **access token** (JWT) and potentially a refresh token.
-
-5. **Use the JWT for API Access**:
-   - The access token (JWT) can now be used to authenticate requests to your API. This token will contain claims about the user and their roles.
-
-6. **Verify the JWT Using JWKS**:
-   - To verify the JWT's authenticity, you can use the JWKS endpoint provided by Keycloak, which contains public keys to verify the JWT's signature.
-   - Example JWKS URL:
-
-     ```plaintext
-     https://localhost:8080/realms/example-realm/protocol/openid-connect/certs
-     ```
-
-   - The JWT's header will contain a `kid` (Key ID), which you can use to fetch the corresponding key from the JWKS endpoint. You can then validate the JWT signature using the public key.
-
-#### **2. Client Credentials Flow (for Client Authentication)**
-
-The **Client Credentials Flow** is often used for **machine-to-machine authentication**, where the client (e.g., a backend service) authenticates itself to Keycloak using its `client_id` and `client_secret` to obtain an access token (JWT). This flow does not involve a user, and the JWT is used for authenticating API calls.
-
-##### Steps in the Client Credentials Flow:
-
-1. **Request Token from Keycloak**:
-   - The client sends a POST request to the `/protocol/openid-connect/token` endpoint, providing the `client_id`, `client_secret`, and `grant_type=client_credentials`.
-   - Example request:
-     ```bash
-     curl -X POST "http://localhost:8080/realms/example-realm/protocol/openid-connect/token" \
-     -H "Content-Type: application/x-www-form-urlencoded" \
-     -d "grant_type=client_credentials" \
-     -d "client_id=myclient" \
-     -d "client_secret=mysecret"
-     ```
-
-2. **JWT Token Issued**:
-   - Keycloak will issue a JWT token for the client, which can be used to authenticate subsequent API requests.
-
-3. **Use the JWT for API Access**:
-   - The JWT token can now be used to access protected API endpoints, and the server can verify it using the same JWKS endpoint as mentioned in the Authorization Code Flow.
-
-##### Example of Validating JWT in API Request:
-
-The steps are the same as in the Authorization Code Flow. When a client sends a request with the JWT token in the `Authorization` header, you can validate the JWT using the JWKS endpoint to verify its authenticity.
-
-### **Summary of Key Concepts**:
+### **Summary of Key Concepts**
 
 - **JWT (JSON Web Token)**: Used for securely transmitting user or client authentication data.
 - **JWKS (JSON Web Key Set)**: A set of public keys used for verifying the JWT's signature.
@@ -477,16 +397,14 @@ However, this flow has significant security implications for **public clients** 
    - If the client_secret is exposed, it can be exploited by attackers. For example, they could use the exposed `client_secret` to impersonate the client and gain unauthorized access to resources or obtain JWT tokens.
    - This defeats the security purpose of having a secret to authenticate the client.
 
-### **Why It's Recommended to Use Other OAuth2 Flows for Public Clients**
-
-For **public clients**, it's much safer to use one of the following OAuth2 flows, as they do not rely on the `client_secret`:
+### Recommended for Other OAuth2 Flows for Public Clients**
 
 1. **Authorization Code Flow (with PKCE)**:
    - The **Authorization Code Flow** is the recommended flow for public clients, especially mobile apps and SPAs.
    - Instead of using the `client_secret`, it relies on the **Proof Key for Code Exchange (PKCE)** to securely exchange an authorization code for an access token.
    - The PKCE mechanism adds an additional layer of security by using a dynamically generated code challenge and code verifier, which mitigates the risk of interception during the authorization process.
-   
-   **Why this is safer**:
+
+   **Why this is safer**
    - The `client_secret` is not used, so there is no sensitive secret to expose.
    - The `code_verifier` is only known by the client and is exchanged for an authorization token after the authorization code is received, preventing attackers from hijacking the authorization process.
 
@@ -495,7 +413,8 @@ For **public clients**, it's much safer to use one of the following OAuth2 flows
    - After the user logs in, the client receives an authorization code.
    - The client then sends the authorization code and the `code_verifier` to Keycloak to exchange the code for an access token.
 
-   **Keycloak Example URL**:
+   **Keycloak Example URL**
+
    ```plaintext
    https://localhost:8080/realms/example-realm/protocol/openid-connect/auth?response_type=code&client_id=myclient&redirect_uri=http://localhost:3000/callback&code_challenge=<code_challenge>&code_challenge_method=S256
    ```
@@ -515,9 +434,11 @@ For **public clients**, it's much safer to use one of the following OAuth2 flows
 - Using this flow exposes the `client_secret`, which could be intercepted or reverse-engineered.
 - The recommended flows for **public clients** are the **Authorization Code Flow with PKCE** (for mobile apps, SPAs) and the **Implicit Flow** (though this is less secure and deprecated in favor of Authorization Code Flow with PKCE).
 
+## Day 3: Authorization Code Flow with PKCE
+
 ### **Best Practice for Public Clients: Authorization Code Flow with PKCE**
 
-PKCE, pronounced "pixy," is an extension to the OAuth 2.0 Authorization Code Flow designed to prevent authorization code interception attacks. It's particularly useful in mobile and public clients (e.g., single-page applications or native mobile apps) where it's not safe to store a `client_secret` securely. 
+PKCE, pronounced "pixy," is an extension to the OAuth 2.0 Authorization Code Flow designed to prevent authorization code interception attacks. It's particularly useful in mobile and public clients (e.g., single-page applications or native mobile apps) where it's not safe to store a `client_secret` securely.
 
 The main problem PKCE solves is the risk of an attacker intercepting the authorization code returned by the authorization server (e.g., Keycloak) and using it to obtain an access token.
 
@@ -539,6 +460,7 @@ PKCE mitigates this risk by introducing an extra layer of security during the **
 - The `code_challenge` and `code_challenge_method` are included in the authorization request.
 
 Example Authorization URL with PKCE:
+
 ```plaintext
 https://localhost:8080/realms/example-realm/protocol/openid-connect/auth?response_type=code&client_id=myclient&redirect_uri=http://localhost:3000/callback&code_challenge=sha256_hash_of_code_verifier&code_challenge_method=S256
 ```
@@ -553,6 +475,7 @@ https://localhost:8080/realms/example-realm/protocol/openid-connect/auth?respons
 - The client sends the authorization code along with the original `code_verifier` to exchange the authorization code for an access token.
 
 Example Token Request:
+
 ```bash
 curl -X POST "http://localhost:8080/realms/example-realm/protocol/openid-connect/token" \
 -H "Content-Type: application/x-www-form-urlencoded" \
@@ -570,38 +493,11 @@ curl -X POST "http://localhost:8080/realms/example-realm/protocol/openid-connect
 - If they match, the token is returned to the client.
 - If they don't match, the request is rejected, preventing an attacker from using an intercepted authorization code.
 
-#### **Why PKCE Makes the Flow Safer:**
-
-- **Security Without Client Secrets**: PKCE enables public clients (e.g., mobile apps, SPAs) to use the **Authorization Code Flow** securely without the need to store a `client_secret`. Even if an attacker intercepts the authorization code, they cannot exchange it for an access token without the correct `code_verifier`, which only the legitimate client knows.
-  
-- **No Need for Confidentiality of the Client Secret**: Because the client does not need to store or send a `client_secret` during the authorization request, PKCE eliminates the risk of a compromised secret, making the authorization process safer for public clients.
-
-### **PKCE Parameters:**
-
-1. **`code_challenge`**: A string generated by hashing the `code_verifier`. This can be created using one of two methods:
-   - **Plain**: Directly use the `code_verifier` without any hashing (less secure and not recommended).
-   - **S256 (recommended)**: Use SHA256 to hash the `code_verifier`.
-
-2. **`code_challenge_method`**: Specifies the method used to generate the `code_challenge`. The recommended method is `S256` (SHA256).
-  
-   Example request:
-   ```plaintext
-   code_challenge_method=S256
-   ```
-
-3. **`code_verifier`**: The random string that is securely generated by the client. This is sent in the token request, and its hash is compared with the `code_challenge`.
-
 ### **PKCE in Keycloak**
 
 Keycloak supports PKCE out of the box for public clients. Here's how to use it:
 
 - Ensure the `code_challenge_method` is supported in your Keycloak client configuration (e.g., setting it to `S256`).
 - PKCE is particularly important for **public clients**, like native mobile apps or single-page applications (SPA), where storing the `client_secret` securely is not feasible.
-
-### **Summary of PKCE Benefits:**
-
-- **Enhanced Security**: By using PKCE, the authorization flow is protected against interception attacks. Even if an attacker intercepts the authorization code, they cannot exchange it for an access token without the `code_verifier`.
-- **No Need for Client Secret**: PKCE eliminates the need for confidential clients (i.e., client applications that can securely store the `client_secret`), making it ideal for mobile and JavaScript-based applications.
-- **Standardized and Supported**: PKCE is widely supported by OAuth 2.0 providers like Keycloak, and is a recommended best practice for securing the Authorization Code Flow in public clients.
 
 By implementing PKCE, you ensure that only the client that initiated the authentication flow can successfully complete it, significantly improving security for user authentication in mobile, browser-based, and other public clients.
