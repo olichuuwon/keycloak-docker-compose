@@ -1,103 +1,77 @@
-[
-  {
-    "realm": "myrealm",
-    "enabled": true,
-    "roles": {
-      "realm": [
-        { "name": "admin" },
-        { "name": "user" }
-      ]
-    },
-    "users": [
-      {
-        "username": "AdminUser",
-        "enabled": true,
-        "emailVerified": true,
-        "credentials": [
-          { "type": "password", "value": "admin123" }
-        ],
-        "realmRoles": ["admin"]
-      },
-      {
-        "username": "NormalUser",
-        "enabled": true,
-        "emailVerified": true,
-        "credentials": [
-          { "type": "password", "value": "user123" }
-        ],
-        "realmRoles": ["user"]
-      }
-    ],
-    "clients": [
-      {
-        "clientId": "myclient",
-        "publicClient": true,
-        "redirectUris": ["https://example.com/callback"],
-        "directAccessGrantsEnabled": true
-      }
+{
+  "realm": "example-realm",
+  "enabled": true,
+  "roles": {
+    "realm": [
+      { "name": "group_1_role_a", "attributes": { "4d": ["2121", "2424", "2525"] } },
+      { "name": "group_1_role_b", "attributes": { "4d": ["2222", "2323"] } },
+      { "name": "group_2_role_a", "attributes": { "4d": ["6767", "6868", "6969"] } },
+      { "name": "group_2_role_b", "attributes": { "4d": ["6565", "6464"] } }
     ]
   },
-  {
-    "realm": "example-realm",
-    "enabled": true,
-    "roles": {
-      "realm": [
-        { "name": "1" },
-        { "name": "2" },
-        { "name": "3" },
-        { "name": "4" },
-        { "name": "5" }
-      ]
+  "groups": [
+    { "name": "group_1", "attributes": { "4d": ["8080"] } },
+    { "name": "group_2", "attributes": { "4d": ["9090"] } }
+  ],
+  "users": [
+    {
+      "username": "user_group_1_role_a",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "password" }],
+      "groups": ["group_1"],
+      "realmRoles": ["group_1_role_a"]
     },
-    "groups": [
-      {
-        "name": "A",
-        "realmRoles": ["1", "5"],
-        "attributes": {
-          "team": ["Alpha"]
-        }
-      },
-      {
-        "name": "B",
-        "attributes": {
-          "team": ["Beta"]
-        }
-      },
-      {
-        "name": "C",
-        "attributes": {
-          "team": ["Gamma"]
-        }
-      }
-    ],
-    "users": [
-      {
-        "username": "GroupAUser",
-        "enabled": true,
-        "emailVerified": true,
-        "credentials": [
-          { "type": "password", "value": "groupA123" }
-        ],
-        "groups": ["A"]
-      },
-      {
-        "username": "GroupBUser",
-        "enabled": true,
-        "emailVerified": true,
-        "credentials": [
-          { "type": "password", "value": "groupB123" }
-        ],
-        "groups": ["B"]
-      }
-    ],
-    "clients": [
-      {
-        "clientId": "myclient",
-        "publicClient": false,
-        "secret": "mysecret",
-        "redirectUris": ["*"],
-        "directAccessGrantsEnabled": true
-      }
-    ]
-  }
-]
+    {
+      "username": "user_group_1_role_b",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "password" }],
+      "groups": ["group_1"],
+      "realmRoles": ["group_1_role_b"]
+    },
+    {
+      "username": "user_group_1_role_a_b",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "password" }],
+      "groups": ["group_1"],
+      "realmRoles": ["group_1_role_a", "group_1_role_b"]
+    },
+    {
+      "username": "user_group_2_role_a",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "password" }],
+      "groups": ["group_2"],
+      "realmRoles": ["group_2_role_a"]
+    },
+    {
+      "username": "user_group_2_role_b",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "password" }],
+      "groups": ["group_2"],
+      "realmRoles": ["group_2_role_b"]
+    },
+    {
+      "username": "user_group_2_role_a_b",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "password" }],
+      "groups": ["group_2"],
+      "realmRoles": ["group_2_role_a", "group_2_role_b"]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "myclient",
+      "publicClient": true,
+      "redirectUris": ["http://localhost:8080/callback"],
+      "directAccessGrantsEnabled": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false
+    }
+  ]
+}

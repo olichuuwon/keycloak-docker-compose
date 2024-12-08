@@ -501,3 +501,135 @@ Keycloak supports PKCE out of the box for public clients. Here's how to use it:
 - PKCE is particularly important for **public clients**, like native mobile apps or single-page applications (SPA), where storing the `client_secret` securely is not feasible.
 
 By implementing PKCE, you ensure that only the client that initiated the authentication flow can successfully complete it, significantly improving security for user authentication in mobile, browser-based, and other public clients.
+
+
+??????????????????????????????
+Here's a step-by-step guide for implementing PKCE (Proof Key for Code Exchange) flow using `cURL`, with an example of generating a code verifier and the subsequent requests to authenticate and obtain an access token.
+
+### Step 1: **Generate the Code Verifier and Code Challenge**
+
+#### **Generate Code Verifier**
+A **code verifier** is a random string that is used to create a **code challenge**. The code verifier must be a base64-encoded string that is between 43 and 128 characters long.
+
+You can generate the code verifier using a tool like `openssl` or any online tool, but I will show you how to generate it on the command line.
+
+**Generate the Code Verifier** using `openssl`:
+```bash
+# Generate a random string (code verifier)
+openssl rand -base64 32 | tr -d '=' | tr -d '\n' | tr -d '/'
+```
+
+Example output (code verifier):
+```bash
+XFLc8b6QK4l-8gEoH0w8A5vtuT_6E80IUVaWcTvv6bs
+```
+
+#### **Generate Code Challenge**
+Next, you need to generate the **code challenge** from the code verifier. The code challenge is the hashed value of the code verifier using SHA256.
+
+To generate the code challenge, you can use this command:
+```bash
+# Generate the code challenge (base64url-encoded SHA256 of code verifier)
+echo -n "XFLc8b6QK4l-8gEoH0w8A5vtuT_6E80IUVaWcTvv6bs" | openssl dgst -sha256 -binary | base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n'
+```
+
+Example output (code challenge):
+```bash
+ZGUzYjNkY2FkZDZlNjY2ZjYzNTUzMGJlMzZkNzM0NDEyY2Q4OGEzNzhkZWI1MmM4ZmQxZGQ5ZDEyMjQzM2UyZTQ
+```
+
+### Step 2: **Authorization Request**
+With the code verifier and challenge in place, you can make a request to your authorization server to start the authentication flow. The client will ask for authorization using the code challenge.
+
+```bash
+# Step 1: Authorization Request (User Authorization)
+curl -X GET "https://<keycloak-server>/realms/example-realm/protocol/openid-connect/auth" \
+  -G \
+  --data-urlencode "response_type=code" \
+  --data-urlencode "client_id=myclient" \
+  --data-urlencode "redirect_uri=http://localhost:8080/callback" \
+  --data-urlencode "scope=openid" \
+  --data-urlencode "code_challenge_method=S256" \
+  --data-urlencode "code_challenge=ZGUzYjNkY2FkZDZlNjY2ZjYzNTUzMGJlMzZkNzM0NDEyY2Q4OGEzNzhkZWI1MmM4ZmQxZGQ5ZDEyMjQzM2UyZTQ"
+```
+
+- `response_type=code`: This specifies the authorization code flow.
+- `client_id=myclient`: The client ID registered in Keycloak.
+- `redirect_uri=http://localhost:8080/callback`: The URI to which the authorization server will send the response (this must match the one registered in the Keycloak client).
+- `scope=openid`: The scope of the requested information (OpenID Connect).
+- `code_challenge_method=S256`: Specifies that SHA256 will be used to generate the code challenge.
+- `code_challenge=<code_challenge>`: The code challenge that was generated in the first step.
+
+When the user authorizes the application, they will be redirected to the provided `redirect_uri` with an authorization code.
+
+### Step 3: **Exchange the Authorization Code for Tokens**
+
+Once the user has authorized the application, Keycloak will redirect them to your redirect URI with an authorization code. You can then use this code to obtain the `access_token` and `id_token`.
+
+```bash
+# Step 2: Token Request (Exchange the authorization code for an access token)
+curl -X POST "https://<keycloak-server>/realms/example-realm/protocol/openid-connect/token" \
+  -d "grant_type=authorization_code" \
+  -d "code=<authorization_code>" \
+  -d "redirect_uri=http://localhost:8080/callback" \
+  -d "client_id=myclient" \
+  -d "client_secret=mysecret" \
+  -d "code_verifier=XFLc8b6QK4l-8gEoH0w8A5vtuT_6E80IUVaWcTvv6bs"
+```
+
+- `grant_type=authorization_code`: This specifies that you're using the authorization code grant type.
+- `code=<authorization_code>`: The authorization code received after user authorization.
+- `redirect_uri=http://localhost:8080/callback`: The redirect URI registered in Keycloak.
+- `client_id=myclient`: The client ID of the application.
+- `client_secret=mysecret`: The client secret if the client is confidential (for public clients, omit this).
+- `code_verifier=<code_verifier>`: The code verifier used to generate the code challenge.
+
+### Step 4: **Access Tokens and ID Token**
+
+The response will contain the `access_token`, `id_token`, and optionally a `refresh_token`:
+
+```json
+{
+  "access_token": "<access_token>",
+  "expires_in": 3600,
+  "token_type": "bearer",
+  "id_token": "<id_token>",
+  "refresh_token": "<refresh_token>"
+}
+```
+
+### Step 5: **Use the Access Token**
+
+You can now use the `access_token` to make authenticated requests to your API. Here's an example of a request with the bearer token:
+
+```bash
+curl -X GET "https://<your-api-server>/api/protected-endpoint" \
+  -H "Authorization: Bearer <access_token>"
+```
+
+---
+
+### Best Practices:
+1. **Code Verifier Length**: Ensure the code verifier is sufficiently random and between 43 to 128 characters long to maintain security.
+2. **Secure Storage**: Store the code verifier securely in your frontend (e.g., in memory, not in local storage).
+3. **PKCE Enabled**: Always enable PKCE for public clients to mitigate the risk of interception of the authorization code.
+4. **Use HTTPS**: Always use HTTPS for secure communication to prevent token interception.
+
+---
+
+Would you like additional help on setting up the actual server or detailed flow explanation for each step? Let me know!
+
+user@admin:/mnt/c/Users/Jesly$ 
+
+echo -n "XFLc8b6QK4l-8gEoH0w8A5vtuT_6E80IUVaWcTvv6bs" | openssl dgst -sha256 -binary | base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n'
+
+0hIGhYdATm-fWzUhbCydCYoI_7IRyuuS4uhpr8tYKMI
+
+curl -X GET "http://localhost:8080/realms/example-realm/protocol/openid-connect/auth" \
+  -G \
+  --data-urlencode "response_type=code" \
+  --data-urlencode "client_id=myclient" \
+  --data-urlencode "redirect_uri=http://localhost:8080/callback" \
+  --data-urlencode "scope=openid" \
+  --data-urlencode "code_challenge_method=S256" \
+  --data-urlencode "code_challenge=0hIGhYdATm-fWzUhbCydCYoI_7IRyuuS4uhpr8tYKMI"
