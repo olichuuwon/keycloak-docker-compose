@@ -1,0 +1,121 @@
+{
+  "realm": "example-realm",
+  "enabled": true,
+  "clients": [
+    {
+      "clientId": "myclient",
+      "publicClient": true,
+      "redirectUris": ["http://localhost:8080/callback"],
+      "directAccessGrantsEnabled": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "protocolMappers": [
+        {
+          "name": "roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-role-mapper",
+          "config": {
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "claim.name": "roles",
+            "jsonType.label": "Array"
+          }
+        },
+        {
+          "name": "channels",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "claim.name": "channels",
+            "jsonType.label": "Array",
+            "user.attribute": "channels"
+          }
+        },
+        {
+          "name": "permissions",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "claim.name": "permissions",
+            "jsonType.label": "Array",
+            "user.attribute": "permissions"
+          }
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "name": "group_1",
+      "subGroups": [
+        {
+          "name": "sub_1a",
+          "attributes": {
+            "permissions": ["read", "write"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "group_2",
+      "subGroups": [
+        {
+          "name": "sub_2a",
+          "attributes": {
+            "permissions": ["read"]
+          }
+        },
+        {
+          "name": "sub_2b",
+          "attributes": {
+            "permissions": ["write"]
+          }
+        }
+      ]
+    }
+  ],
+  "roles": [
+    {
+      "name": "role_a",
+      "attributes": {
+        "channels": [1, 2, 3]
+      }
+    },
+    {
+      "name": "role_b",
+      "attributes": {
+        "channels": [4, 5, 6]
+      }
+    }
+  ],
+  "users": [
+    {
+      "username": "bob1",
+      "email": "bob@example.com",
+      "groups": ["group_1"],
+      "roles": ["role_a"]
+    },
+    {
+      "username": "sally2",
+      "email": "sally@example.com",
+      "groups": ["group_1"],
+      "roles": []
+    },
+    {
+      "username": "bob3",
+      "email": "bob3@example.com",
+      "groups": ["group_2"],
+      "roles": ["role_b"]
+    }
+  ]
+}

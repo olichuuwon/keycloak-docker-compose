@@ -609,27 +609,9 @@ curl -X GET "https://<your-api-server>/api/protected-endpoint" \
 
 ---
 
-### Best Practices:
+### Best Practices
+
 1. **Code Verifier Length**: Ensure the code verifier is sufficiently random and between 43 to 128 characters long to maintain security.
 2. **Secure Storage**: Store the code verifier securely in your frontend (e.g., in memory, not in local storage).
 3. **PKCE Enabled**: Always enable PKCE for public clients to mitigate the risk of interception of the authorization code.
 4. **Use HTTPS**: Always use HTTPS for secure communication to prevent token interception.
-
----
-
-Would you like additional help on setting up the actual server or detailed flow explanation for each step? Let me know!
-
-user@admin:/mnt/c/Users/Jesly$ 
-
-echo -n "XFLc8b6QK4l-8gEoH0w8A5vtuT_6E80IUVaWcTvv6bs" | openssl dgst -sha256 -binary | base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n'
-
-0hIGhYdATm-fWzUhbCydCYoI_7IRyuuS4uhpr8tYKMI
-
-curl -X GET "http://localhost:8080/realms/example-realm/protocol/openid-connect/auth" \
-  -G \
-  --data-urlencode "response_type=code" \
-  --data-urlencode "client_id=myclient" \
-  --data-urlencode "redirect_uri=http://localhost:8080/callback" \
-  --data-urlencode "scope=openid" \
-  --data-urlencode "code_challenge_method=S256" \
-  --data-urlencode "code_challenge=0hIGhYdATm-fWzUhbCydCYoI_7IRyuuS4uhpr8tYKMI"

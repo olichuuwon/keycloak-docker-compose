@@ -1,77 +1,201 @@
 {
-  "realm": "example-realm",
-  "enabled": true,
-  "roles": {
-    "realm": [
-      { "name": "group_1_role_a", "attributes": { "4d": ["2121", "2424", "2525"] } },
-      { "name": "group_1_role_b", "attributes": { "4d": ["2222", "2323"] } },
-      { "name": "group_2_role_a", "attributes": { "4d": ["6767", "6868", "6969"] } },
-      { "name": "group_2_role_b", "attributes": { "4d": ["6565", "6464"] } }
-    ]
-  },
-  "groups": [
-    { "name": "group_1", "attributes": { "4d": ["8080"] } },
-    { "name": "group_2", "attributes": { "4d": ["9090"] } }
+  "realm":"example-realm",
+  "enabled":true,
+  "groups":[
+     {
+        "name":"group_1",
+        "attributes":{
+           "channels":["dvwsdvdsvsvdsvsdvds"]
+        },
+        "subGroups":[
+           {
+              "name":"subgroup_1a",
+              "attributes":{
+                 "channels":[
+                    "0004",
+                    "0005",
+                    "0006",
+                    "0007"
+                 ]
+              }
+           },
+           {
+              "name":"subgroup_1b",
+              "attributes":{
+                 "channels":[
+                    "0008",
+                    "0009",
+                    "0010",
+                    "0011"
+                 ]
+              }
+           }
+        ]
+     },
+     {
+        "name":"group_2",
+        "attributes":{
+           "channels":[
+              "0012",
+              "0013",
+              "0014",
+              "0015"
+           ]
+        },
+        "subGroups":[
+           {
+              "name":"subgroup_2a",
+              "attributes":{
+                 "channels":[
+                    "0016",
+                    "0017",
+                    "0018",
+                    "0019"
+                 ]
+              }
+           },
+           {
+              "name":"subgroup_2b",
+              "attributes":{
+                 "channels":[
+                    "0020",
+                    "0021",
+                    "0022",
+                    "0023"
+                 ]
+              }
+           }
+        ]
+     }
   ],
-  "users": [
-    {
-      "username": "user_group_1_role_a",
-      "enabled": true,
-      "emailVerified": true,
-      "credentials": [{ "type": "password", "value": "password" }],
-      "groups": ["group_1"],
-      "realmRoles": ["group_1_role_a"]
-    },
-    {
-      "username": "user_group_1_role_b",
-      "enabled": true,
-      "emailVerified": true,
-      "credentials": [{ "type": "password", "value": "password" }],
-      "groups": ["group_1"],
-      "realmRoles": ["group_1_role_b"]
-    },
-    {
-      "username": "user_group_1_role_a_b",
-      "enabled": true,
-      "emailVerified": true,
-      "credentials": [{ "type": "password", "value": "password" }],
-      "groups": ["group_1"],
-      "realmRoles": ["group_1_role_a", "group_1_role_b"]
-    },
-    {
-      "username": "user_group_2_role_a",
-      "enabled": true,
-      "emailVerified": true,
-      "credentials": [{ "type": "password", "value": "password" }],
-      "groups": ["group_2"],
-      "realmRoles": ["group_2_role_a"]
-    },
-    {
-      "username": "user_group_2_role_b",
-      "enabled": true,
-      "emailVerified": true,
-      "credentials": [{ "type": "password", "value": "password" }],
-      "groups": ["group_2"],
-      "realmRoles": ["group_2_role_b"]
-    },
-    {
-      "username": "user_group_2_role_a_b",
-      "enabled": true,
-      "emailVerified": true,
-      "credentials": [{ "type": "password", "value": "password" }],
-      "groups": ["group_2"],
-      "realmRoles": ["group_2_role_a", "group_2_role_b"]
-    }
+  "users":[
+     {
+        "username":"admin",
+        "firstName":"Admin",
+        "lastName":"User",
+        "email":"admin@example.com",
+        "enabled":true,
+        "emailVerified":true,
+        "credentials":[
+           {
+              "type":"password",
+              "value":"admin"
+           }
+        ],
+        "groups":[
+           "/group_1",
+           "/group_2"
+        ]
+     },
+     {
+        "username":"user_group_1a",
+        "firstName":"User",
+        "lastName":"Group1A",
+        "email":"user_group_1a@example.com",
+        "enabled":true,
+        "emailVerified":true,
+        "credentials":[
+           {
+              "type":"password",
+              "value":"password"
+           }
+        ],
+        "groups":[
+           "/group_1/subgroup_1a"
+        ]
+     },
+     {
+        "username":"user_group_1b",
+        "firstName":"User",
+        "lastName":"Group1B",
+        "email":"user_group_1b@example.com",
+        "enabled":true,
+        "emailVerified":true,
+        "credentials":[
+           {
+              "type":"password",
+              "value":"password"
+           }
+        ],
+        "groups":[
+           "/group_1/subgroup_1b"
+        ]
+     },
+     {
+        "username":"user_group_2a",
+        "firstName":"User",
+        "lastName":"Group2A",
+        "email":"user_group_2a@example.com",
+        "enabled":true,
+        "emailVerified":true,
+        "credentials":[
+           {
+              "type":"password",
+              "value":"password"
+           }
+        ],
+        "groups":[
+           "/group_2/subgroup_2a"
+        ]
+     },
+     {
+        "username":"user_group_2b",
+        "firstName":"User",
+        "lastName":"Group2B",
+        "email":"user_group_2b@example.com",
+        "enabled":true,
+        "emailVerified":true,
+        "credentials":[
+           {
+              "type":"password",
+              "value":"password"
+           }
+        ],
+        "groups":[
+           "/group_2/subgroup_2b"
+        ]
+     }
   ],
-  "clients": [
-    {
-      "clientId": "myclient",
-      "publicClient": true,
-      "redirectUris": ["http://localhost:8080/callback"],
-      "directAccessGrantsEnabled": false,
-      "standardFlowEnabled": true,
-      "implicitFlowEnabled": false,
-      "serviceAccountsEnabled": false
-    }
+  "clients":[
+     {
+        "clientId":"myclient",
+        "publicClient":true,
+        "redirectUris":[
+           "http://localhost:8080/callback"
+        ],
+        "directAccessGrantsEnabled":false,
+        "standardFlowEnabled":true,
+        "implicitFlowEnabled":false,
+        "attributes":{
+           "pkce.code.challenge.method":"S256"
+        },
+        "protocolMappers":[
+           {
+              "name":"groups",
+              "protocol":"openid-connect",
+              "protocolMapper":"oidc-group-membership-mapper",
+              "config":{
+                 "full.path":"true",
+                 "id.token.claim":"true",
+                 "access.token.claim":"true",
+                 "userinfo.token.claim":"true",
+                 "claim.name":"groups"
+              }
+           },
+           {
+              "name":"channels",
+              "protocol":"openid-connect",
+              "protocolMapper":"oidc-usermodel-attribute-mapper",
+              "config":{
+                 "user.attribute":"channels",
+                 "claim.name":"channels",
+                 "jsonType.label":"Array",
+                 "id.token.claim":"true",
+                 "access.token.claim":"true",
+                 "userinfo.token.claim":"true"
+              }
+           }
+        ]
+     }
   ]
 }
