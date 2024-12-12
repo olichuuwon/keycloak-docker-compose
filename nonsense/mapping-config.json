@@ -57,7 +57,7 @@
       }
     },
     {
-      "name": "rolezattri",
+      "name": "channels",
       "protocol": "openid-connect",
       "protocolMapper": "oidc-role-attribute-mapper",
       "consentRequired": false,
