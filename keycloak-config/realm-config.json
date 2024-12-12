@@ -1,86 +1,101 @@
-
 {
    "realm": "example-realm",
    "enabled": true,
    "clients": [
-     {
-       "clientId": "myclient",
-       "publicClient": true,
-       "redirectUris": ["http://localhost:8080/callback"],
-       "directAccessGrantsEnabled": false,
-       "standardFlowEnabled": true,
-       "implicitFlowEnabled": false,
-       "attributes": {
-         "pkce.code.challenge.method": "S256"
-       },
-       "protocolMappers": [
-         {
-           "name": "group-membership",
-           "protocol": "openid-connect",
-           "protocolMapper": "oidc-group-membership-mapper",
-           "config": {
-             "full.path": "false",
-             "id.token.claim": "true",
-             "access.token.claim": "true",
-             "claim.name": "groups"
-           }
+      {
+         "clientId": "myclient",
+         "publicClient": true,
+         "redirectUris": [
+            "http://localhost:8080/callback"
+         ],
+         "directAccessGrantsEnabled": false,
+         "standardFlowEnabled": true,
+         "implicitFlowEnabled": false,
+         "attributes": {
+            "pkce.code.challenge.method": "S256"
          },
-         {
-           "name": "user-roles",
-           "protocol": "openid-connect",
-           "protocolMapper": "oidc-usermodel-realm-role-mapper",
-           "config": {
-             "multivalued": "true",
-             "user.attribute": "roles",
-             "id.token.claim": "true",
-             "access.token.claim": "true",
-             "claim.name": "roles"
-           }
-         },
-         {
-            "name":"channels",
-            "protocol":"openid-connect",
-            "protocolMapper":"oidc-role-attribute-mapper",
-            "config":{
-               "role.attribute":"channels",
-               "claim.name":"channels",
-               "jsonType.label":"Array",
-               "id.token.claim":"true",
-               "access.token.claim":"true"
+         "protocolMappers": [
+            {
+               "name": "channels",
+               "protocol": "openid-connect",
+               "protocolMapper": "oidc-role-attribute-mapper",
+               "consentRequired": false,
+               "config": {
+                  "aggregate.attrs": "true",
+                  "introspection.token.claim": "true",
+                  "multivalued": "true",
+                  "userinfo.token.claim": "true",
+                  "id.token.claim": "true",
+                  "lightweight.claim": "false",
+                  "access.token.claim": "true",
+                  "attribute": "channels",
+                  "claim.name": "channels",
+                  "jsonType.label": "JSON"
+               }
+            },
+            {
+               "name": "permissions",
+               "protocol": "openid-connect",
+               "protocolMapper": "oidc-usermodel-attribute-mapper",
+               "consentRequired": false,
+               "config": {
+                  "aggregate.attrs": "true",
+                  "introspection.token.claim": "true",
+                  "multivalued": "true",
+                  "userinfo.token.claim": "true",
+                  "user.attribute": "permissions",
+                  "id.token.claim": "true",
+                  "lightweight.claim": "false",
+                  "access.token.claim": "true",
+                  "claim.name": "permissions",
+                  "jsonType.label": "JSON"
+               }
             }
-         },
-         {
-            "name":"permissions",
-            "protocol":"openid-connect",
-            "protocolMapper":"oidc-usermodel-attribute-mapper",
-            "config":{
-               "user.attribute":"permissions",
-               "claim.name":"permissions",
-               "jsonType.label":"Array",
-               "id.token.claim":"true",
-               "access.token.claim":"true"
-            }
-         }
-       ]
-     }
+         ]
+      }
    ],
    "groups": [
-     {
-       "name": "group_1",
-       "attributes": {
-         "permissions": ["read"]
-       }
-     }
+      {
+         "name": "group_1",
+         "attributes": {
+            "permissions": [
+               "read",
+               "write"
+            ]
+         }
+      },
+      {
+         "name": "group_2",
+         "attributes": {
+            "permissions": [
+               "read"
+            ]
+         }
+      }
    ],
    "roles": {
-     "realm": [
-       {
-         "name": "role_a",
-         "attributes": {
-           "channels": [1, 2, 3]
+      "realm": [
+         {
+            "name": "role_a",
+            "attributes": {
+               "channels": [
+                  1,
+                  2,
+                  3
+               ]
+            }
+         },
+         {
+            "name": "role_b",
+            "attributes": {
+               "channels": [
+                  4,
+                  5,
+                  6
+               ]
+            }
          }
-       }
-     ]
+      ]
    },
    "users": [
       {
@@ -97,9 +112,71 @@
             }
          ],
          "groups": [
+            "/group_1", "/group_2"
+         ],
+         "realmRoles": [
+            "role_a", "role_b"
+         ]
+      },
+      {
+         "username": "bob",
+         "firstName": "Admin",
+         "lastName": "User",
+         "email": "bob@example.com",
+         "enabled": true,
+         "emailVerified": true,
+         "credentials": [
+            {
+               "type": "password",
+               "value": "bob"
+            }
+         ],
+         "groups": [
+            
+         ],
+         "realmRoles": [
+            "role_a"
+         ]
+      },
+      {
+         "username": "sally",
+         "firstName": "Admin",
+         "lastName": "User",
+         "email": "sally@example.com",
+         "enabled": true,
+         "emailVerified": true,
+         "credentials": [
+            {
+               "type": "password",
+               "value": "sally"
+            }
+         ],
+         "groups": [
             "/group_1"
          ],
-         "realmRoles": ["role_a"]
+         "realmRoles": [
+
+         ]
+      },
+      {
+         "username": "charlie",
+         "firstName": "Admin",
+         "lastName": "User",
+         "email": "charlie@example.com",
+         "enabled": true,
+         "emailVerified": true,
+         "credentials": [
+            {
+               "type": "password",
+               "value": "charlie"
+            }
+         ],
+         "groups": [
+            "/group_2"
+         ],
+         "realmRoles": [
+            "role_b"
+         ]
       }
    ]
 }
