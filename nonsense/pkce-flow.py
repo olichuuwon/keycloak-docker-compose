@@ -3,7 +3,7 @@ import hashlib
 import os
 import requests
 import jwt  # PyJWT library to decode and verify JWT tokens
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse, parse_qs
 
 
 # Step 1: Generate PKCE Code Verifier and Code Challenge
@@ -41,7 +41,18 @@ def get_authorization_code(client_id, redirect_uri, code_challenge):
     return auth_url
 
 
-# Step 3: Exchange Authorization Code for Access Token
+# Step 3: Extract Authorization Code from Callback URL
+def extract_auth_code(callback_url):
+    # Parse the callback URL and extract the 'code' parameter
+    parsed_url = urlparse(callback_url)
+    query_params = parse_qs(parsed_url.query)
+    auth_code = query_params.get("code", [None])[0]
+    if not auth_code:
+        raise ValueError("Authorization code not found in the callback URL.")
+    return auth_code
+
+
+# Step 4: Exchange Authorization Code for Access Token
 def get_access_token(auth_code, client_id, redirect_uri, code_verifier):
     token_url = (
         "http://localhost:8080/realms/example-realm/protocol/openid-connect/token"
@@ -65,7 +76,7 @@ def get_access_token(auth_code, client_id, redirect_uri, code_verifier):
         return None
 
 
-# Step 4: Fetch JWKS from Keycloak
+# Step 5: Fetch JWKS from Keycloak
 def get_jwks(jwks_url):
     try:
         response = requests.get(jwks_url)
@@ -76,7 +87,7 @@ def get_jwks(jwks_url):
         return None
 
 
-# Step 5: Verify JWT Signature Using the Public Key
+# Step 6: Verify JWT Signature Using the Public Key
 def verify_jwt(jwt_token, jwks_url):
     try:
         # Fetch JWKS
@@ -120,7 +131,7 @@ def verify_jwt(jwt_token, jwks_url):
         return None
 
 
-# Step 6: Refresh Access Token Using Refresh Token
+# Step 7: Refresh Access Token Using Refresh Token
 def refresh_access_token(refresh_token, client_id, token_url):
     try:
         data = {
@@ -160,16 +171,24 @@ def main():
     # Step 2: Get Authorization Code
     auth_url = get_authorization_code(client_id, redirect_uri, code_challenge)
     print(
-        "\nAfter logging in, you'll be redirected. Copy the authorization code from the URL and paste it here."
+        "\nAfter logging in, you'll be redirected. Copy the full callback URL and paste it here."
     )
-    auth_code = input("Enter the authorization code: ")
+    callback_url = input("Enter the full callback URL: ")
 
-    # Step 3: Exchange Authorization Code for Access Token
+    # Step 3: Extract Authorization Code
+    try:
+        auth_code = extract_auth_code(callback_url)
+        print(f"Extracted Authorization Code: {auth_code}")
+    except ValueError as e:
+        print(e)
+        return
+
+    # Step 4: Exchange Authorization Code for Access Token
     token_response = get_access_token(auth_code, client_id, redirect_uri, code_verifier)
     if token_response:
-        print("\nAccess Token Response:", token_response)
+        # print("\nAccess Token Response:", token_response)
 
-        # Step 4: Verify the JWT Access Token
+        # Step 5: Verify the JWT Access Token
         access_token = token_response.get("access_token")
         if access_token:
             verified_claims = verify_jwt(access_token, jwks_url)
@@ -177,14 +196,14 @@ def main():
                 print("\nVerified JWT Claims:")
                 print(verified_claims)
 
-        # Step 5: Refresh Access Token (Optional)
+        # Step 6: Refresh Access Token (Optional)
         refresh_token = token_response.get("refresh_token")
         if refresh_token:
             print("\nAttempting to refresh the access token...")
             new_tokens = refresh_access_token(refresh_token, client_id, token_url)
-            if new_tokens:
-                print("New Tokens:")
-                print(new_tokens)
+            # if new_tokens:
+            #     print("New Tokens:")
+            #     print(new_tokens)
     else:
         print("Failed to obtain access token.")
 

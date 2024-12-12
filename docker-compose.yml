@@ -10,5 +10,6 @@ services:
       - --import-realm
     volumes:
       - ./keycloak-config:/opt/keycloak/data/import
+      - ./mapper-config:/opt/keycloak/providers
     ports:
       - "8080:8080"

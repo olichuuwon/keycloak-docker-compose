@@ -1,201 +1,105 @@
+
 {
-  "realm":"example-realm",
-  "enabled":true,
-  "groups":[
+   "realm": "example-realm",
+   "enabled": true,
+   "clients": [
      {
-        "name":"group_1",
-        "attributes":{
-           "channels":["dvwsdvdsvsvdsvsdvds"]
-        },
-        "subGroups":[
-           {
-              "name":"subgroup_1a",
-              "attributes":{
-                 "channels":[
-                    "0004",
-                    "0005",
-                    "0006",
-                    "0007"
-                 ]
-              }
-           },
-           {
-              "name":"subgroup_1b",
-              "attributes":{
-                 "channels":[
-                    "0008",
-                    "0009",
-                    "0010",
-                    "0011"
-                 ]
-              }
+       "clientId": "myclient",
+       "publicClient": true,
+       "redirectUris": ["http://localhost:8080/callback"],
+       "directAccessGrantsEnabled": false,
+       "standardFlowEnabled": true,
+       "implicitFlowEnabled": false,
+       "attributes": {
+         "pkce.code.challenge.method": "S256"
+       },
+       "protocolMappers": [
+         {
+           "name": "group-membership",
+           "protocol": "openid-connect",
+           "protocolMapper": "oidc-group-membership-mapper",
+           "config": {
+             "full.path": "false",
+             "id.token.claim": "true",
+             "access.token.claim": "true",
+             "claim.name": "groups"
            }
-        ]
-     },
-     {
-        "name":"group_2",
-        "attributes":{
-           "channels":[
-              "0012",
-              "0013",
-              "0014",
-              "0015"
-           ]
-        },
-        "subGroups":[
-           {
-              "name":"subgroup_2a",
-              "attributes":{
-                 "channels":[
-                    "0016",
-                    "0017",
-                    "0018",
-                    "0019"
-                 ]
-              }
-           },
-           {
-              "name":"subgroup_2b",
-              "attributes":{
-                 "channels":[
-                    "0020",
-                    "0021",
-                    "0022",
-                    "0023"
-                 ]
-              }
+         },
+         {
+           "name": "user-roles",
+           "protocol": "openid-connect",
+           "protocolMapper": "oidc-usermodel-realm-role-mapper",
+           "config": {
+             "multivalued": "true",
+             "user.attribute": "roles",
+             "id.token.claim": "true",
+             "access.token.claim": "true",
+             "claim.name": "roles"
            }
-        ]
+         },
+         {
+            "name":"channels",
+            "protocol":"openid-connect",
+            "protocolMapper":"oidc-role-attribute-mapper",
+            "config":{
+               "role.attribute":"channels",
+               "claim.name":"channels",
+               "jsonType.label":"Array",
+               "id.token.claim":"true",
+               "access.token.claim":"true"
+            }
+         },
+         {
+            "name":"permissions",
+            "protocol":"openid-connect",
+            "protocolMapper":"oidc-usermodel-attribute-mapper",
+            "config":{
+               "user.attribute":"permissions",
+               "claim.name":"permissions",
+               "jsonType.label":"Array",
+               "id.token.claim":"true",
+               "access.token.claim":"true"
+            }
+         }
+       ]
      }
-  ],
-  "users":[
+   ],
+   "groups": [
      {
-        "username":"admin",
-        "firstName":"Admin",
-        "lastName":"User",
-        "email":"admin@example.com",
-        "enabled":true,
-        "emailVerified":true,
-        "credentials":[
-           {
-              "type":"password",
-              "value":"admin"
-           }
-        ],
-        "groups":[
-           "/group_1",
-           "/group_2"
-        ]
-     },
-     {
-        "username":"user_group_1a",
-        "firstName":"User",
-        "lastName":"Group1A",
-        "email":"user_group_1a@example.com",
-        "enabled":true,
-        "emailVerified":true,
-        "credentials":[
-           {
-              "type":"password",
-              "value":"password"
-           }
-        ],
-        "groups":[
-           "/group_1/subgroup_1a"
-        ]
-     },
-     {
-        "username":"user_group_1b",
-        "firstName":"User",
-        "lastName":"Group1B",
-        "email":"user_group_1b@example.com",
-        "enabled":true,
-        "emailVerified":true,
-        "credentials":[
-           {
-              "type":"password",
-              "value":"password"
-           }
-        ],
-        "groups":[
-           "/group_1/subgroup_1b"
-        ]
-     },
-     {
-        "username":"user_group_2a",
-        "firstName":"User",
-        "lastName":"Group2A",
-        "email":"user_group_2a@example.com",
-        "enabled":true,
-        "emailVerified":true,
-        "credentials":[
-           {
-              "type":"password",
-              "value":"password"
-           }
-        ],
-        "groups":[
-           "/group_2/subgroup_2a"
-        ]
-     },
-     {
-        "username":"user_group_2b",
-        "firstName":"User",
-        "lastName":"Group2B",
-        "email":"user_group_2b@example.com",
-        "enabled":true,
-        "emailVerified":true,
-        "credentials":[
-           {
-              "type":"password",
-              "value":"password"
-           }
-        ],
-        "groups":[
-           "/group_2/subgroup_2b"
-        ]
+       "name": "group_1",
+       "attributes": {
+         "permissions": ["read"]
+       }
      }
-  ],
-  "clients":[
-     {
-        "clientId":"myclient",
-        "publicClient":true,
-        "redirectUris":[
-           "http://localhost:8080/callback"
-        ],
-        "directAccessGrantsEnabled":false,
-        "standardFlowEnabled":true,
-        "implicitFlowEnabled":false,
-        "attributes":{
-           "pkce.code.challenge.method":"S256"
-        },
-        "protocolMappers":[
-           {
-              "name":"groups",
-              "protocol":"openid-connect",
-              "protocolMapper":"oidc-group-membership-mapper",
-              "config":{
-                 "full.path":"true",
-                 "id.token.claim":"true",
-                 "access.token.claim":"true",
-                 "userinfo.token.claim":"true",
-                 "claim.name":"groups"
-              }
-           },
-           {
-              "name":"channels",
-              "protocol":"openid-connect",
-              "protocolMapper":"oidc-usermodel-attribute-mapper",
-              "config":{
-                 "user.attribute":"channels",
-                 "claim.name":"channels",
-                 "jsonType.label":"Array",
-                 "id.token.claim":"true",
-                 "access.token.claim":"true",
-                 "userinfo.token.claim":"true"
-              }
-           }
-        ]
-     }
-  ]
+   ],
+   "roles": {
+     "realm": [
+       {
+         "name": "role_a",
+         "attributes": {
+           "channels": [1, 2, 3]
+         }
+       }
+     ]
+   },
+   "users": [
+      {
+         "username": "admin",
+         "firstName": "Admin",
+         "lastName": "User",
+         "email": "admin@example.com",
+         "enabled": true,
+         "emailVerified": true,
+         "credentials": [
+            {
+               "type": "password",
+               "value": "admin"
+            }
+         ],
+         "groups": [
+            "/group_1"
+         ],
+         "realmRoles": ["role_a"]
+      }
+   ]
 }
