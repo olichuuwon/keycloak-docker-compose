@@ -23,7 +23,7 @@ def generate_code_challenge(code_verifier):
 # Step 2: Request Authorization Code from Keycloak
 def get_authorization_code(client_id, redirect_uri, code_challenge):
     authorization_url = (
-        "http://localhost:8080/realms/example-realm/protocol/openid-connect/auth"
+        "http://localhost:8088/realms/example-realm/protocol/openid-connect/auth"
     )
 
     params = {
@@ -55,7 +55,7 @@ def extract_auth_code(callback_url):
 # Step 4: Exchange Authorization Code for Access Token
 def get_access_token(auth_code, client_id, redirect_uri, code_verifier):
     token_url = (
-        "http://localhost:8080/realms/example-realm/protocol/openid-connect/token"
+        "http://localhost:8088/realms/example-realm/protocol/openid-connect/token"
     )
 
     data = {
@@ -153,12 +153,12 @@ def refresh_access_token(refresh_token, client_id, token_url):
 def main():
     # Configuration (replace with your actual Keycloak details)
     client_id = "myclient"
-    redirect_uri = "http://localhost:8080/callback"  # Replace with your redirect URI
+    redirect_uri = "http://localhost:8088/callback"  # Replace with your redirect URI
     jwks_url = (
-        "http://localhost:8080/realms/example-realm/protocol/openid-connect/certs"
+        "http://localhost:8088/realms/example-realm/protocol/openid-connect/certs"
     )
     token_url = (
-        "http://localhost:8080/realms/example-realm/protocol/openid-connect/token"
+        "http://localhost:8088/realms/example-realm/protocol/openid-connect/token"
     )
 
     # Step 1: Generate PKCE Code Verifier and Challenge

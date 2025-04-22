@@ -42,7 +42,7 @@ services:
     volumes:
       - ./keycloak-config:/opt/keycloak/data/import
     ports:
-      - "8080:8080"
+      - "8088:8088"
 ```
 
 In this configuration, Keycloak uses its default **H2 in-memory database**.
@@ -257,7 +257,7 @@ Keycloak allows multiple realms to be defined in a single JSON file for organiza
 To obtain an access token, use the following `curl` command to send a POST request to the Keycloak server:
 
 ```bash
-curl -X POST "http://localhost:8080/realms/example-realm/protocol/openid-connect/token" ^
+curl -X POST "http://localhost:8088/realms/example-realm/protocol/openid-connect/token" ^
 -H "Content-Type: application/x-www-form-urlencoded" ^
 -d "client_id=myclient" ^
 -d "username=GroupAUser" ^
@@ -282,7 +282,7 @@ curl -X POST "http://localhost:8080/realms/example-realm/protocol/openid-connect
 If your client requires a client secret, add the `client_secret` parameter:
 
 ```bash
-curl -X POST "http://localhost:8080/realms/example-realm/protocol/openid-connect/token" ^
+curl -X POST "http://localhost:8088/realms/example-realm/protocol/openid-connect/token" ^
 -H "Content-Type: application/x-www-form-urlencoded" ^
 -d "client_id=myclient" ^
 -d "client_secret=mysecret" ^
@@ -308,7 +308,7 @@ curl -X POST "http://localhost:8080/realms/example-realm/protocol/openid-connect
 To retrieve the public keys used by the Keycloak server for signing tokens, use the following `curl` command:
 
 ```bash
-curl http://localhost:8080/realms/example-realm/protocol/openid-connect/certs
+curl http://localhost:8088/realms/example-realm/protocol/openid-connect/certs
 ```
 
 **Response:**
@@ -342,7 +342,7 @@ curl http://localhost:8080/realms/example-realm/protocol/openid-connect/certs
 - Public keys retrieved from the `/certs` endpoint can be used to verify JWT signatures for security purposes.
 
 ```bash
-curl -X POST "http://localhost:8080/realms/example-realm/protocol/openid-connect/token" ^
+curl -X POST "http://localhost:8088/realms/example-realm/protocol/openid-connect/token" ^
 -H "Content-Type: application/x-www-form-urlencoded" ^
 -d "client_id=myclient" ^
 -d "username=GroupAUser" ^
@@ -351,7 +351,7 @@ curl -X POST "http://localhost:8080/realms/example-realm/protocol/openid-connect
 ```
 
 ```bash
-curl -X POST "http://localhost:8080/realms/example-realm/protocol/openid-connect/token" ^
+curl -X POST "http://localhost:8088/realms/example-realm/protocol/openid-connect/token" ^
 -H "Content-Type: application/x-www-form-urlencoded" ^
 -d "client_id=myclient" ^
 -d "client_secret=mysecret" ^
@@ -362,7 +362,7 @@ curl -X POST "http://localhost:8080/realms/example-realm/protocol/openid-connect
 ```
 
 ```bash
-curl http://localhost:8080/realms/example-realm/protocol/openid-connect/certs
+curl http://localhost:8088/realms/example-realm/protocol/openid-connect/certs
 ```
 
 ### Why `client_secret` is needed here
@@ -416,7 +416,7 @@ However, this flow has significant security implications for **public clients** 
    **Keycloak Example URL**
 
    ```plaintext
-   https://localhost:8080/realms/example-realm/protocol/openid-connect/auth?response_type=code&client_id=myclient&redirect_uri=http://localhost:3000/callback&code_challenge=<code_challenge>&code_challenge_method=S256
+   https://localhost:8088/realms/example-realm/protocol/openid-connect/auth?response_type=code&client_id=myclient&redirect_uri=http://localhost:3000/callback&code_challenge=<code_challenge>&code_challenge_method=S256
    ```
 
 2. **Implicit Flow** (Deprecated but still used in some scenarios):
@@ -462,7 +462,7 @@ PKCE mitigates this risk by introducing an extra layer of security during the **
 Example Authorization URL with PKCE:
 
 ```plaintext
-https://localhost:8080/realms/example-realm/protocol/openid-connect/auth?response_type=code&client_id=myclient&redirect_uri=http://localhost:3000/callback&code_challenge=sha256_hash_of_code_verifier&code_challenge_method=S256
+https://localhost:8088/realms/example-realm/protocol/openid-connect/auth?response_type=code&client_id=myclient&redirect_uri=http://localhost:3000/callback&code_challenge=sha256_hash_of_code_verifier&code_challenge_method=S256
 ```
 
 #### **2. User Logs In**
@@ -477,7 +477,7 @@ https://localhost:8080/realms/example-realm/protocol/openid-connect/auth?respons
 Example Token Request:
 
 ```bash
-curl -X POST "http://localhost:8080/realms/example-realm/protocol/openid-connect/token" \
+curl -X POST "http://localhost:8088/realms/example-realm/protocol/openid-connect/token" \
 -H "Content-Type: application/x-www-form-urlencoded" \
 -d "grant_type=authorization_code" \
 -d "code=authorization_code_here" \
@@ -547,7 +547,7 @@ curl -X GET "https://<keycloak-server>/realms/example-realm/protocol/openid-conn
   -G \
   --data-urlencode "response_type=code" \
   --data-urlencode "client_id=myclient" \
-  --data-urlencode "redirect_uri=http://localhost:8080/callback" \
+  --data-urlencode "redirect_uri=http://localhost:8088/callback" \
   --data-urlencode "scope=openid" \
   --data-urlencode "code_challenge_method=S256" \
   --data-urlencode "code_challenge=ZGUzYjNkY2FkZDZlNjY2ZjYzNTUzMGJlMzZkNzM0NDEyY2Q4OGEzNzhkZWI1MmM4ZmQxZGQ5ZDEyMjQzM2UyZTQ"
@@ -555,7 +555,7 @@ curl -X GET "https://<keycloak-server>/realms/example-realm/protocol/openid-conn
 
 - `response_type=code`: This specifies the authorization code flow.
 - `client_id=myclient`: The client ID registered in Keycloak.
-- `redirect_uri=http://localhost:8080/callback`: The URI to which the authorization server will send the response (this must match the one registered in the Keycloak client).
+- `redirect_uri=http://localhost:8088/callback`: The URI to which the authorization server will send the response (this must match the one registered in the Keycloak client).
 - `scope=openid`: The scope of the requested information (OpenID Connect).
 - `code_challenge_method=S256`: Specifies that SHA256 will be used to generate the code challenge.
 - `code_challenge=<code_challenge>`: The code challenge that was generated in the first step.
@@ -571,7 +571,7 @@ Once the user has authorized the application, Keycloak will redirect them to you
 curl -X POST "https://<keycloak-server>/realms/example-realm/protocol/openid-connect/token" \
   -d "grant_type=authorization_code" \
   -d "code=<authorization_code>" \
-  -d "redirect_uri=http://localhost:8080/callback" \
+  -d "redirect_uri=http://localhost:8088/callback" \
   -d "client_id=myclient" \
   -d "client_secret=mysecret" \
   -d "code_verifier=XFLc8b6QK4l-8gEoH0w8A5vtuT_6E80IUVaWcTvv6bs"
@@ -579,7 +579,7 @@ curl -X POST "https://<keycloak-server>/realms/example-realm/protocol/openid-con
 
 - `grant_type=authorization_code`: This specifies that you're using the authorization code grant type.
 - `code=<authorization_code>`: The authorization code received after user authorization.
-- `redirect_uri=http://localhost:8080/callback`: The redirect URI registered in Keycloak.
+- `redirect_uri=http://localhost:8088/callback`: The redirect URI registered in Keycloak.
 - `client_id=myclient`: The client ID of the application.
 - `client_secret=mysecret`: The client secret if the client is confidential (for public clients, omit this).
 - `code_verifier=<code_verifier>`: The code verifier used to generate the code challenge.
